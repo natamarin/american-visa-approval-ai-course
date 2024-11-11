@@ -19,6 +19,7 @@ def pdf_to_text_with_ocr(folder_path):
     salary = []
     work_description = []
     education_experience = []
+    countries_visited = []
 
     for filename in os.listdir(folder_path):
         if filename.endswith('.pdf'):
@@ -71,10 +72,19 @@ def pdf_to_text_with_ocr(folder_path):
                         if education != education_matches[-1]:
                             cadena_courses = cadena_courses + ", "
                     education_experience.append(cadena_courses)
+                
+                country_region_matches = re.findall(r"Country/Region \(\d+\):\s*(.*)", text)
+                if country_region_matches is not None and len(country_region_matches) > 0:
+                    cadena_countries = ""
+                    for country in country_region_matches:
+                        cadena_countries = cadena_countries + country
+                        if country != country_region_matches[-1]:
+                            cadena_countries = cadena_countries + ", "
+                    countries_visited.append(cadena_countries)
                     
     # Este código lo que hace es transponer espacios en blanco en los arrays para que todos los arrays sean del mismo tamaño
     # y asi evitar este error de Pandas: ValueError: arrays must all be same length
-    arrays = [ages, marital, trip_purpose,nationality, occupation, salary, work_description, education_experience]
+    arrays = [ages, marital, trip_purpose,nationality, occupation, salary, work_description, education_experience, countries_visited]
     max_length = max(len(arr) for arr in arrays)
     arrays_padded = [arr + [None] * (max_length - len(arr)) for arr in arrays]
     df = pd.DataFrame(arrays_padded).T
@@ -88,10 +98,11 @@ def save_text_to_excel(df, output_excel_path):
                        "Primary Occupation": df[4],
                        "Monthly Salary": df[5],
                        "Work Description": df[6],
-                       "Education": df[7]})
+                       "Education": df[7],
+                       "Visited Countries": df[8]})
     df.to_excel(output_excel_path, index=False)
 
 folder_path = '/Users/natalia.marin/Documents/HojasVidaPdf'
 df = pdf_to_text_with_ocr(folder_path)
-output_excel_path = '/Users/natalia.marin/Documents/HV16.xlsx'
+output_excel_path = '/Users/natalia.marin/Documents/HV21.xlsx'
 save_text_to_excel(df, output_excel_path)
