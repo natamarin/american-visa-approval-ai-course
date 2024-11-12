@@ -32,6 +32,7 @@ def pdf_to_text_with_ocr(folder_path):
                 # Se obtiene la sección Personal, Address, Phone, and Passport/Travel Document Information 
                 # para sacar la fecha de nacimiento y la nacionalidad, ya que estos datos se repiten en otras secciones
                 personal_info_match = re.search(r"Personal, Address, Phone, and Passport/Travel Document Information.*", text, re.DOTALL)
+                
                 if personal_info_match is not None:
                     personal_info_text = personal_info_match.group(0)
                     dob_match = re.search(r"Date of Birth:\s*(\d{2}\s+[A-Z]+\s+\d{4})", personal_info_text)
@@ -52,9 +53,14 @@ def pdf_to_text_with_ocr(folder_path):
                 if purpose_match is not None:
                     trip_purpose.append(purpose_match.group(1).strip())
 
-                ocupation_match = re.search(r"Primary Occupation:\s*(.*)", text)
-                if ocupation_match is not None:
-                    occupation.append(ocupation_match.group(1).strip())
+                work_ed_train_info_match = re.search(r"Work/Education/Training Information.*", text, re.DOTALL)
+                if work_ed_train_info_match is not None:
+                    ocupation_match = re.search(r"Primary Occupation:\s*(.*)", text)
+                    if ocupation_match is not None:
+                        occupation.append(ocupation_match.group(1).strip())
+                else:
+                    if "N/A" not in occupation:
+                        occupation.append("N/A")
 
                 salary_match = re.search(r"Monthly Salary in Local Currency \(if employed\):\s*(.*)", text)
                 if salary_match is not None:
@@ -72,15 +78,19 @@ def pdf_to_text_with_ocr(folder_path):
                         if education != education_matches[-1]:
                             cadena_courses = cadena_courses + ", "
                     education_experience.append(cadena_courses)
-                
-                country_region_matches = re.findall(r"Country/Region \(\d+\):\s*(.*)", text)
-                if country_region_matches is not None and len(country_region_matches) > 0:
-                    cadena_countries = ""
-                    for country in country_region_matches:
-                        cadena_countries = cadena_countries + country
-                        if country != country_region_matches[-1]:
-                            cadena_countries = cadena_countries + ", "
-                    countries_visited.append(cadena_countries)
+                    
+                travel_five_years_match = re.search(r"Have you traveled to any countries/regions within the last five years?\s*(.*)", text) 
+                if travel_five_years_match is not None:
+                    country_region_matches = re.findall(r"Country/Region \(\d+\):\s*(.*)", text)
+                    if country_region_matches is not None and len(country_region_matches) > 0:
+                        cadena_countries = ""
+                        for country in country_region_matches:
+                            cadena_countries = cadena_countries + country
+                            if country != country_region_matches[-1]:
+                                cadena_countries = cadena_countries + ", "
+                        countries_visited.append(cadena_countries)
+                    else:
+                        countries_visited.append("N/A")
                     
     # Este código lo que hace es transponer espacios en blanco en los arrays para que todos los arrays sean del mismo tamaño
     # y asi evitar este error de Pandas: ValueError: arrays must all be same length
@@ -104,5 +114,5 @@ def save_text_to_excel(df, output_excel_path):
 
 folder_path = '/Users/natalia.marin/Documents/HojasVidaPdf'
 df = pdf_to_text_with_ocr(folder_path)
-output_excel_path = '/Users/natalia.marin/Documents/HV21.xlsx'
+output_excel_path = '/Users/natalia.marin/Documents/HV111.xlsx'
 save_text_to_excel(df, output_excel_path)
