@@ -20,7 +20,12 @@ def pdf_to_text_with_ocr(folder_path):
     work_description = []
     education_experience = []
     countries_visited = []
-
+    refuse_visa = []
+    mother_in_us = []
+    immediate_relatives = []
+    other_relatives = []
+    
+    
     for filename in os.listdir(folder_path):
         if filename.endswith('.pdf'):
             pdf_path = os.path.join(folder_path, filename)
@@ -32,6 +37,7 @@ def pdf_to_text_with_ocr(folder_path):
                 # Se obtiene la sección Personal, Address, Phone, and Passport/Travel Document Information 
                 # para sacar la fecha de nacimiento y la nacionalidad, ya que estos datos se repiten en otras secciones
                 personal_info_match = re.search(r"Personal, Address, Phone, and Passport/Travel Document Information.*", text, re.DOTALL)
+                work_ed_train_info_match = re.search(r"Work/Education/Training Information.*", text, re.DOTALL)
                 
                 if personal_info_match is not None:
                     personal_info_text = personal_info_match.group(0)
@@ -53,14 +59,10 @@ def pdf_to_text_with_ocr(folder_path):
                 if purpose_match is not None:
                     trip_purpose.append(purpose_match.group(1).strip())
 
-                work_ed_train_info_match = re.search(r"Work/Education/Training Information.*", text, re.DOTALL)
                 if work_ed_train_info_match is not None:
                     ocupation_match = re.search(r"Primary Occupation:\s*(.*)", text)
                     if ocupation_match is not None:
                         occupation.append(ocupation_match.group(1).strip())
-                else:
-                    if "N/A" not in occupation:
-                        occupation.append("N/A")
 
                 salary_match = re.search(r"Monthly Salary in Local Currency \(if employed\):\s*(.*)", text)
                 if salary_match is not None:
@@ -91,10 +93,27 @@ def pdf_to_text_with_ocr(folder_path):
                         countries_visited.append(cadena_countries)
                     else:
                         countries_visited.append("N/A")
+                
+                refuse_visa_match = re.search(r"Have you ever been refused a U.S. Visa, or been refused admission to\s*(.*)", text)
+                if refuse_visa_match is not None:
+                    refuse_visa.append(refuse_visa_match.group(1).strip())
+                    
+                mother_in_us_match = re.search(r"Is your mother in the U.S.\?\s*(.*)", text)
+                if mother_in_us_match is not None:
+                    mother_in_us.append(mother_in_us_match.group(1).strip())
+                    
+                immediate_relatives_match = re.search(r"Do you have any immediate relatives, not including parents in the U.S.\?\s*(.*)", text)
+                if immediate_relatives_match is not None:
+                    immediate_relatives.append(immediate_relatives_match.group(1).strip())
+                    
+                other_relatives_match = re.search(r"Do you have any other relatives in the United States\?\s*(.*)", text)
+                if other_relatives_match is not None:
+                    other_relatives.append(other_relatives_match.group(1).strip())
                     
     # Este código lo que hace es transponer espacios en blanco en los arrays para que todos los arrays sean del mismo tamaño
     # y asi evitar este error de Pandas: ValueError: arrays must all be same length
-    arrays = [ages, marital, trip_purpose,nationality, occupation, salary, work_description, education_experience, countries_visited]
+    arrays = [ages, marital, trip_purpose,nationality, occupation, salary, work_description, 
+              education_experience, countries_visited, refuse_visa, mother_in_us, immediate_relatives, other_relatives]
     max_length = max(len(arr) for arr in arrays)
     arrays_padded = [arr + [None] * (max_length - len(arr)) for arr in arrays]
     df = pd.DataFrame(arrays_padded).T
@@ -109,10 +128,14 @@ def save_text_to_excel(df, output_excel_path):
                        "Monthly Salary": df[5],
                        "Work Description": df[6],
                        "Education": df[7],
-                       "Visited Countries": df[8]})
+                       "Visited Countries": df[8],
+                       "Have you ever been refused a U.S. Visa?": df[9],
+                       "Is your mother in the U.S.?": df[10],
+                       "Do you have any immediate relatives, not including parents in the U.S.?": df[11],
+                       "Do you have any other relatives in the United States?": df[12]})
     df.to_excel(output_excel_path, index=False)
 
 folder_path = '/Users/natalia.marin/Documents/HojasVidaPdf'
 df = pdf_to_text_with_ocr(folder_path)
-output_excel_path = '/Users/natalia.marin/Documents/HV111.xlsx'
+output_excel_path = '/Users/natalia.marin/Documents/HV1.xlsx'
 save_text_to_excel(df, output_excel_path)
