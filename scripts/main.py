@@ -7,16 +7,15 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 
 # Cargar los datos
-def cargar_datos(archivo_entrada='C:/Users/juanim/OneDrive - Caja de Compensacion Familiar de Antioquia COMFAMA/P.VISA/american-visa-approval-ai-course/datosProcesar/datos.csv'):
+def cargar_datos(archivo_entrada='/Users/natalia.marin/Documents/CursoTalentTech/Taller2/datosProcesar/datos.csv'):
     data = pd.read_csv(archivo_entrada , header=0 , encoding='utf-8', sep=';')
+    return data
 
 # Preprocesamiento de los datos
 def preprocesar_datos(data):
-    #X = data.drop('y', axis=1)  
-    #y = data['y']  
     # Dividir los datos en características (X) y etiqueta (y)
 
-    y = data[["y"]]# La variable dependiente 'y'
+    y = data[['y']] # La variable dependiente 'y'
     X = data.iloc[:,0:11] # Todas las columnas excepto 'y'
     # Las variables edad y sueldo ya están normalizadas, no es necesario escalarlas nuevamente.
     # Se puede proceder directamente con las variables binarias y las normalizadas (edad, sueldo).
@@ -52,26 +51,30 @@ def evaluar_modelo(model, X_test, y_test):
     print(f"Accuracy: {accuracy}")
     print("Ahora vamos a hacer un pronostico....")
 
-def Pronostico(model):
-    x1=input("Ingresa la edad")
-    x2=input("Ingresa el salario mensual")
-    x3=input("Escribe 1 si te han negado la visa antes o 0 si no la han negado")
-    x4=input("Escribe 1 si tus padres vive en USA, 0 si no")
-    x5=input("Escribe 1 si tienes familia en USA, 0 si no")
-    x6=input("Escribe 1 si tienes conocidos en USA, 0 si no")
-    x7=input("Escribe 1 si eres casado o 0 si no eres casado")
-    x8=input("Escribe 1 si estas en union libre o 0 estas en union libre")
-    x9=input("Escribe 1 si eres soltero o 0 si no eres soltero")
-    x10=input("Escribe 1 si eres viudo o 0 si no eres viudo")
-    x11=input("Ingresa 1 si has viado al exterior o 0 en caso contrario")
+def pronostico(model):
+    x1=input("Ingresa la edad: ")
+    x2=input("Ingresa el salario mensual: ")
+    x3=input("Digita 1 si te han negado la visa antes, de lo contrario digita 0: ")
+    x4=input("Digita 1 si tus padres viven en USA, de lo contrario digita 0: ")
+    x5=input("Digita 1 si tienes familiares en USA, de lo contrario digita 0: ")
+    x6=input("Digita 1 si tienes conocidos en USA, de lo contrario digita 0: ")
+    x7=input("Digita 1 si estas casado, de lo contrario digita 0: ")
+    x8=input("Digita 1 si vives en unión libre, de lo contrario digita 0: ")
+    x9=input("Digita 1 si estas soltero, de lo contrario digita 0: ")
+    x10=input("Digita 1 si eres viudo, de lo contrario digita 0: ")
+    x11=input("Digita 1 si has viajado al exterior, de lo contrario digita 0: ")
     inputs=[x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11]
-    result = model.predict(inputs).flatten()   
-    if result == 1:
-        result = "Segun la informacion la visa seria aprobada"
-    else:    
-        result = "Segun la informacion la visa seria negada"
     
-    return print(result)
+    # Convert inputs to a NumPy array and reshape it
+    inputs_array = np.array(inputs).astype(float).reshape(1, -1)
+    result = model.predict(inputs_array) 
+    print("Este es el resultado del modelo: ")
+    print(result)  
+    
+    if result[0] >= 0.5:
+        return print( "Segun la información dada, la visa sería APROBADA" )
+    else:    
+        return print( "Segun la información dada, la visa sería NEGADA" )
 
 def main():
     # Cargar los datos
@@ -93,8 +96,9 @@ def main():
     evaluar_modelo(model, X_test, y_test)
 
     # Realizar Pronosticos con datos de Entrada nuevoa
-    # Pronostico(model)
+    pronostico(model)
 
 
 if __name__ == "__main__":
     main()
+    
