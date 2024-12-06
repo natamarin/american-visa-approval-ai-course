@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-def dividir_datos(archivo_entrada='/Users/natalia.marin/Downloads/datos.csv'):
+def dividir_datos(archivo_entrada='/Users/natalia.marin/american-visa-approval-ai-course/datosProcesar/datos.csv'):
     # Leer los datos
     data=pd.read_csv(archivo_entrada)
     

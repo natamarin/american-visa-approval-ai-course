@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 
 # Cargar los datos
-def cargar_datos(archivo_entrada='/Users/natalia.marin/Documents/CursoTalentTech/Taller2/datosProcesar/datos.csv'):
+def cargar_datos(archivo_entrada='/Users/natalia.marin/american-visa-approval-ai-course/datosProcesar/datos.csv'):
     data = pd.read_csv(archivo_entrada , header=0 , encoding='utf-8', sep=';')
     return data
 
